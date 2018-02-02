@@ -336,7 +336,7 @@ class PeerEventServiceClient {
                     SeekInfo.SeekBehavior.BLOCK_UNTIL_READY
 
             );
-            DeliverResponse[] deliver = connectEnvelope(latestBlock);
+            //DeliverResponse[] deliver = connectEnvelope(latestBlock);
         } catch (CryptoException e) {
             throw new TransactionException(e);
         }

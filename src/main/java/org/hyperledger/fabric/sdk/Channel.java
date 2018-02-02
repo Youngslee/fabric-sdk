@@ -248,7 +248,7 @@ public class Channel implements Serializable {
 
     }
 
-    Channel(String name, HFClient client) throws InvalidArgumentException {
+    public Channel(String name, HFClient client) throws InvalidArgumentException {
         this(name, client, false);
     }
 
@@ -726,7 +726,6 @@ public class Channel implements Serializable {
         try {
 
             final Channel systemChannel = newSystemChannel(client); //needs to be invoked on system channel
-
             TransactionContext transactionContext = systemChannel.getTransactionContext();
 
             FabricProposal.Proposal proposal = GetConfigBlockBuilder.newBuilder()
@@ -737,12 +736,11 @@ public class Channel implements Serializable {
             logger.debug("Getting signed proposal.");
             SignedProposal signedProposal = getSignedProposal(transactionContext, proposal);
             logger.debug("Got signed proposal.");
-
             Collection<ProposalResponse> resp = sendProposalToPeers(new ArrayList<>(Collections.singletonList(peer)),
                     signedProposal, transactionContext);
 
             ProposalResponse pro = resp.iterator().next();
-
+            System.out.println(pro.getStatus());
             if (pro.getStatus() == ProposalResponse.Status.SUCCESS) {
                 logger.trace(format("getConfigBlock from peer %s on channel %s success", peer.getName(), name));
                 return Block.parseFrom(pro.getProposalResponse().getResponse().getPayload().toByteArray());
@@ -956,6 +954,8 @@ public class Channel implements Serializable {
             }
 
             for (Peer peer : getEventingPeers()) {
+            	System.out.println(getPeersOptions(peer));
+            	System.out.println(getTransactionContext());
                 peer.initiateEventing(getTransactionContext(), getPeersOptions(peer));
             }
 
@@ -1148,7 +1148,6 @@ public class Channel implements Serializable {
         try {
 
             Block parseFrom = getConfigBlock(getRandomPeer());
-
             // final Block configBlock = getConfigurationBlock();
 
             logger.debug(format("Channel %s Got config block getting MSP data and anchorPeers data", name));
@@ -2331,7 +2330,6 @@ public class Channel implements Serializable {
                                                              SignedProposal signedProposal,
                                                              TransactionContext transactionContext) throws InvalidArgumentException, ProposalException {
         checkPeers(peers);
-
         class Pair {
             private final Peer peer;
             private final Future<FabricProposalResponse.ProposalResponse> future;
@@ -2371,10 +2369,15 @@ public class Channel implements Serializable {
             String message;
             int status = 500;
             final String peerName = peerFuturePair.peer.getName();
+            
+				System.out.println(peerFuturePair.peer.getChannel());
+			
             try {
                 fabricResponse = peerFuturePair.future.get(transactionContext.getProposalWaitTime(), TimeUnit.MILLISECONDS);
+                
                 message = fabricResponse.getResponse().getMessage();
                 status = fabricResponse.getResponse().getStatus();
+                
                 logger.debug(format("Channel %s got back from peer %s status: %d, message: %s",
                         name, peerName, status, message));
                 if (null != diagnosticFileDumper) {
@@ -2402,7 +2405,7 @@ public class Channel implements Serializable {
                     } else {
                         message = format("Sending proposal to " + peerName + " failed because of: %s", cause.getMessage());
                     }
-                    logger.error(message, new Exception(cause)); //wrapped in exception to get full stack trace.
+                    logger.error(peerName+"****   "+message, new Exception(cause)); //wrapped in exception to get full stack trace.
                 }
             }
 

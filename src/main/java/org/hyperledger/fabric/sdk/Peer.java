@@ -109,9 +109,9 @@ public class Peer implements Serializable {
             //PeerEventServiceClient(Peer peer, ManagedChannelBuilder<?> channelBuilder, Properties properties)
             //   peerEventingClient = new PeerEventServiceClient(this, new HashSet<Channel>(Arrays.asList(new Channel[] {channel})));
             peerEventingClient = new PeerEventServiceClient(this, new Endpoint(url, properties).getChannelBuilder(), properties, peersOptions);
-
+            System.out.println("properties : "+properties);
             peerEventingClient.connect(transactionContext);
-
+        
         }
 
     }

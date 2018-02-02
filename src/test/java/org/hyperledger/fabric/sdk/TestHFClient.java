@@ -29,7 +29,7 @@ public class TestHFClient {
 
     public TestHFClient(File tempFile, HFClient hfClient) {
         this.tempFile = tempFile;
-        this.hfClient = hfClient;
+        this.hfClient = hfClient; 
     }
 
     public static HFClient newInstance() throws Exception {
